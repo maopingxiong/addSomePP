@@ -1,0 +1,275 @@
+题目描述
+[Problem Description]
+You are required to develop a meeting booking system for a company.
+
+This company has N employees ( N ≤ 10,000 ).
+There can be up to 3,000 teams in the company.
+Each team can have up to 30 team members.
+One employee can belong to several teams.
+
+Each team can book one regular meeting which is held for every seven days.
+Each meeting can be booked by setting a date, starting and end times, and the meeting starts at the scheduled time.
+
+The manager of each team wants to arrange a meeting when all their team members are available.
+If several times are available, they want to book a meeting at the earliest time from the current time.
+This system is designed to help them book meetings.
+
+When each manager types in the system their team name and estimated meeting duration (minutes),
+the system then finds and informs available times for meetings.
+The fact that a meeting can be held means that the members of a team have no other meeting to attend from “the starting time” to “the end time” of the meeting.
+The end time of a meeting is “the starting time of the meeting + estimated duration – 1.”
+For example, the end time of a meeting, which starts at 10:00 and lasts for 60 minutes, is 10:59.
+The participants of the meeting cannot attend another meeting which is held for 1 minute or longer from 10:00 to 10:59.
+However, they can attend a meeting that either ends at 9:59 or starts at 11:00.
+
+In this problem, meetings can be held from Mondays to Fridays. No meeting can be held on Saturdays and Sundays.
+Moreover, meetings can be held only from 9:00 to 18:00. The starting times of all meetings must be 9:00 or later, and the end times 18:00 or earlier.
+For example, a meeting, which starts at 17:21 and lasts for 40 minutes, can be held.
+
+The following are APIs to be implemented
+※ The function signature below is based on C/C++. As for Java, refer to the provided Solution.java and UserSolution.java
+
+
+
+void init(int N, char mName[][])
+
+This function is called once in the beginning of each test case.
+
+When this function is called, the current day is Monday, Week 1, and the time is 8:00.
+
+There is no team.
+
+ 
+
+N is the total number of employees.
+
+mName are the names of the N number of employees.
+
+ 
+
+The names of all employees and teams given in this problem consist of only English lowercase letters and end with ‘\0.’
+
+The length of a given string variable is less or equal to 13 including ‘\0.’
+
+There are no duplicate names.
+
+ 
+
+Parameters
+  N : Total number of employees (10 ≤ N ≤ 10,000)
+
+  mName : Names of the N number of employees ( 6 ≤ Name length ≤ 12 )
+
+void createTeam(char mTeamName[], int M, char mName[][])
+
+This function creates a team named mTeamName.
+
+The M number of employees are in this team and the names of M employees are sent to mName.
+
+ 
+
+There are no duplicate names for teams and team members.
+
+The name of an employee who does not exist is not sent.
+
+ 
+
+Parameters
+  mTeamName : Name of the team to be created ( 6 ≤ Each name’s length ≤ 12 )
+
+  M : Number of employees in the team ( 1 ≤ M ≤ 30 )
+
+  mName : Names of M employees in the team
+
+int bookMeeting(char mTeamName[], int mMinutes)
+
+This function cancels a meeting arranged by mTeamName.
+
+And then it books a new meeting.
+
+The new meeting lasts for mMinutes.
+
+ 
+
+The meeting cycle is 7 days.
+
+For a meeting, the earliest time is selected from the current time among the times when all team members are available.
+
+ 
+
+For the return value type, the starting time of the meeting is returned in the form of WDHHMM after being stored in this variable.
+
+W represents week. It is a value that keeps increasing by 1 for every 7 days, starting from 1.
+
+D represents day. Monday is 1 and the value keeps increasing by one every day.
+
+H represents hour. It ranges from 09 to 18. Two digit numbers must be stored for hour.
+
+M represents minute. It ranges from 00 to 59. Two digit numbers must be stored for minute.
+
+ 
+
+For instance, if a return value is Tuesday, Week 10, 9:15, 1020915 is returned.
+
+ 
+
+If there is no time when all members of the team are available, 0 is returned.
+
+ 
+
+The name of a team that does not exist is not sent.
+
+ 
+
+Parameters
+  mTeamName : Name of the team to book a meeting ( 6 ≤ Name length ≤ 12 )
+
+  mMinutes : Meeting duration in the unit of minutes ( 40 ≤ mMinutes ≤ 120 )
+
+Return
+  The starting time of the meeting. 0 is returned if such meeting cannot be booked
+
+void timeElapse(int mDays)
+
+mDays pass.
+
+Current time is 08:00.
+
+ 
+
+Note that the current day can be Saturday or Sunday.
+
+Meetings cannot be held on Saturdays and Sundays.
+
+ 
+
+Parameters
+  mDays : Number of days that pass ( 1 ≤ mDays ≤ 7 )
+
+
+ 
+[Example]
+In the first test case, the names of 10 employees are given in init() as shown in in [Table. 1].
+The below numbers will be used in this example to describe employees instead of their names.
+
+
+[Table 2] shows in order some of the functions called in Test Case #1.
+The first day when the test case starts is Monday, Week 1.
+
+
+At Order #3, the team “zopnsgpqgbac” books a meeting which lasts for 41 minutes.
+The team has 6 team members {8, 4, 6, 10, 9, 5} and all members have no other meetings to attend.
+Since the earliest starting time from the current time is Monday, Week 1, 09:00 and this value is returned.
+
+At Order #5, “zopnsgpqgbac” books a meeting which lasts for 111 minutes.
+This team already has a meeting booked at 09:00.
+Since each team is allowed to book one meeting, the team cancels the 09:00 meeting and books a new meeting.
+Since the team members have no other meetings to attend, the earliest starting time from the current time is Monday 09:00.
+
+At Order #7, the team “qwuzbgfy” books a meeting which lasts for 101 minutes.
+This team has 4 team members {4, 7, 9, 5} and the three of the team members – 4, 5, 9 – are also the team members of “zopnsgpqgbac” .
+“zopnsgpqgbac” has a meeting from 09:00 to 10:50.
+Since the three team members need to attend this meeting, the earliest starting time from the current time is Monday, 10:51.
+
+[Table 3] shows results of the functions sent after 5 days in [Table 2].
+The current day is Saturday, Week 1.
+
+
+At Order #11, the team “rdniub” books a meeting which lasts for 117 minutes.
+This team has 5 team members {4, 1, 9, 8, 3} and some of them are also the team members of “zopnsgpqgbac” and “qwuzbgfy.”
+The meeting times of these teams are Monday 09:00~10:50 and 10:51~12:31, respectively.
+Meetings cannot be booked on both the current day, Saturday, and the next day, Sunday.
+Therefore, the earliest starting time available is Monday, Week 2, 12:32.
+This value is returned.
+
+
+[Table 4] shows results of the functions sent after 5 days in [Table 3].
+The current day is Thursday, Week 2.
+
+
+At Order #14, the team ”tmzfivtvvmu” books a meeting which lasts for 117 minutes.
+Since the current day has no meetings yet, the earliest starting time, 09:00, can be booked.
+
+At Order #16, the team “tjgtggrhozxf” books a meeting which lasts for 57 minutes.
+Some members of the team are also the members of ”tmzfivtvvmu” which has a meeting scheduled from 09:00 to 10:56.
+Therefore, the earliest starting time is Thursday, 10:57.
+
+[Table 5] shows results of the functions sent after 1 day in [Table 4].
+The current day is Friday, Week 2.
+
+
+At Order #18, the team “sqaxnl” books a meeting which lasts for 109 minutes.
+The members of this team are {10, 4, 8, 2, 5, 3}.
+Friday, the current day, has no meetings.
+Therefore, the earliest starting time is Friday, 09:00.
+
+At Order #20, the team “wgdvlzmmv” books a meeting which lasts for 118 minutes.
+The members of this team are {2, 8, 7, 3, 1, 4}.
+Some of them are also the team member of “sqaxnl” which has a meeting on Friday from 09:00 to 10:48.
+Therefore, the earliest starting time is Friday, 10:49.
+
+At Order #21, the team “qwuzbgfy” books a meeting which lasts for 95 minutes.
+The members of this team are {4, 7, 9, 5}.
+This team already has a meeting booked on Monday from 10:51 to 12:30.
+So the team cancels this meeting and books a new one.
+Since some of the team members have meetings on Friday from 09:00 to 10:48 and from 10:49 to 12:46, respectively,
+the earliest meeting time is Friday, 12:47~14:21.
+
+At Order #23, the team “zopnsgpqgbac” books a meeting which lasts for 61 minutes.
+The members of this team are {8, 4, 6, 10, 9, 5}.
+This team already has a meeting on Monday from 09:00 to 10:50.
+Therefore, the team cancels this meeting and books a new one.
+Some of the team members have meetings on Friday from 09:00 to 10:48, from 10:49 to 12:46, and from 12:47 to 14:21, respectively.
+Therefore, the earliest meeting time is 14:22~15:22.
+
+At Order #23, the team “qwuzbgfy” books a meeting which lasts for 101 minutes.
+This team already has a meeting on Friday from 12:47 to 14:21.
+The team cancels this meeting and books a new one.
+The new meeting lasts for 101 minutes which cannot be scheduled from 12:47 to 14:21.
+Therefore, the earliest meeting time is 15:23~17:03.
+
+At Order #26, the team “tmzfivtvvmu” books a meeting which lasts for 77 minutes.
+The members of this team are {2, 1, 10, 5, 7, 4}, and the team already has a meeting on Thursday from 09:00 to 10:56.
+The team cancels this meeting and books a new one.
+Some of the team members have meetings on Friday from 09:00 to 10:48 and from 10:49 to 12:46, respectively,
+Therefore, the earliest meeting time is 12:47~14:03.
+
+[Constraints]
+1. N, the number of employees, is less or equal to 10,000.
+2. M, the number of members for each team is less or equal to 30.
+3. For each test case, the sum of calls of the all functions is up to 6,001.
+
+[Input and Output]
+As the input and output are processed in the provided code in the Main, they are not processed separately in the User Code.
+
+The output result for the sample input is “#TC number 100 or 0.” It is the correct answer if the result is 100; it is the wrong answer if it is 0.
+
+输入
+Main.cpp   UserSolution.cpp
+
+Main.java   UserSolution.java
+
+sample_input.txt
+
+ 
+
+输出
+样例输入
+1 100
+9112 10 5 15
+110900
+110900
+111051
+211232
+240900
+241057
+250900
+251049
+251247
+251422
+251523
+251247
+样例输出
+#1 100
+提示
+[提交][状态]
