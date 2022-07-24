@@ -27,6 +27,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <unordered_map>
 
 using namespace std;
 
@@ -36,38 +37,44 @@ struct Team
 	int duration;
 	int day;
 	string name;
-	bool operator<(Team o) const
-	{
-		return start < o.start;
-	}
+	//bool operator<(Team o) const {
+    //    return start < o.start;
+	//}
+	//void to_string() {
+        // cout<<start<<" "<<duration<<" "<<day<<" "<<name<<endl;
+	//}
 };
 
-map<string, Team*> team;
-map<string, vector<Team*> > person_team;
-map<Team, vector<string>* > team_person;
+unordered_map<string, int> person_id;
+unordered_map<string, int> team_id;
+unordered_map<int, vector<int> > person_team;
+unordered_map<int, vector<int> > team_person;
 
-string a[10005];
+// string a[10005];
+// int n;
 Team b[3005];
 int m;
 
-int calender[7][541];
+bool view[7][545];
 int cur_week;
 int cur_day;
 
 void init(int N, char mName[][MAX_STR_LEN])
 {
-	team.clear();
+    person_id.clear();
+	team_id.clear();
 	person_team.clear();
 	team_person.clear();
 
+    // n = N;
 	m = 0;
 
 	cur_week = 0;
 	cur_day = 0;
 
-	for (int i = 0; i < N; i++)
-	{
-		a[i] = mName[i];
+	for (int i = 0; i < N; i++) {
+		// a[i] = mName[i];
+		person_id[mName[i]] = i;
 	}
 }
 
@@ -77,80 +84,75 @@ void createTeam(char mTeamName[], int M, char mName[][MAX_STR_LEN])
 	t.name = mTeamName;
 	t.day = t.duration = t.start = 0;
 	b[m] = t;
-	m++;
 
-	vector<string> temp;
-	for (int i = 0; i < M; i++)
-	{
-		string name = mName[i];
-		temp.push_back(name);
-		person_team[name].push_back(&t);
+	team_id[mTeamName] = m;
+
+	vector<int> temp_team_person;
+	for (int i = 0; i < M; i++){
+		int name_id = person_id[mName[i]];
+		temp_team_person.push_back(name_id);
+		person_team[name_id].push_back(m);
 	}
-	team_person[t] = &temp;
+	team_person[m] = temp_team_person;
+
+	m++;
 }
 
 int bookMeeting(char mTeamName[], int mMinutes)
 {
-	for (int i = 0; i < 7; i++)
-	{
-		for (int j = 0; j < 541; j++)
-		{
-			calender[i][j] = 0;
+	for (int i = 0; i < 7; i++){
+		for (int j = 0; j < 541; j++){
+			view[i][j] = 0;
 		}
 	}
 
-	Team team_ptr = *team[mTeamName];
-
-	team_ptr.day = team_ptr.duration = team_ptr.start = 0;
-
-	vector<string> i = *team_person[team_ptr];
-	for (int ii = 0; ii < i.size(); ii++)
+	int temp_team_id = team_id[mTeamName];
+	b[temp_team_id].day = b[temp_team_id].duration = b[temp_team_id].start = 0;
+	for (auto member_id: team_person[temp_team_id])
 	{
-		string member = i[ii];
-		for (int jj = 0; jj < person_team[member].size(); jj++)
+		for (auto team_item_id: person_team[member_id])
 		{
-			Team chk_team = *person_team[member][jj];
-			int day = chk_team.day;
-			for (int i = chk_team.start; i < chk_team.start + chk_team.duration; i++)
+		    Team team = b[team_item_id];
+			int day = team.day;
+			for (int i = team.start; i < team.start + team.duration; i++)
 			{
-				calender[day][i] = 1;
+				view[day][i] = 1;
 			}
 		}
 	}
 
-	int ans_week = cur_week;
-	int ans_day = 0;
-	int ans_mins = 0;
 	int sum = 0;
+	int _week = cur_week;
+	int _day = 0;
+	int _start = 0;
 
 	for (int i = cur_day; i < cur_day + 7; i++)
 	{
-		int d = i % 7;
-		if (d == 5 || d == 6)
-			continue;
-
+		int day = i % 7;
+		if (day == 5 || day == 6) {
+            continue;
+		}
 		sum = 0;
-
 		for (int k = 0; k < 541; k++)
 		{
-			if (calender[d][k] == 0)
+			if (view[day][k] == 0)
 			{
 				sum++;
 				if (sum == 1)
 				{
-					ans_day = i;
-					ans_mins = k;
+					_day = i;
+					_start = k;
 				}
 				if (sum == mMinutes)
 				{
-					ans_week += ans_day / 7;
-					ans_day %= 7;
+					_week += _day / 7;
+					_day %= 7;
 
-					team_ptr.duration = mMinutes;
-					team_ptr.day = ans_day % 7;
-					team_ptr.start = ans_mins;
-					cout<<(ans_week + 1) * 100000 + (ans_day + 1) * 10000 + (ans_mins / 60 + 9) * 100 + ans_mins % 60<<endl;
-					return (ans_week + 1) * 100000 + (ans_day + 1) * 10000 + (ans_mins / 60 + 9) * 100 + ans_mins % 60;
+					b[temp_team_id].duration = mMinutes;
+					b[temp_team_id].day = _day % 7;
+					b[temp_team_id].start = _start;
+
+					return (_week + 1) * 100000 + (_day + 1) * 10000 + (_start / 60 + 9) * 100 + _start % 60;
 				}
 			}
 			else
@@ -164,9 +166,9 @@ int bookMeeting(char mTeamName[], int mMinutes)
 
 void timeElapse(int mDays)
 {
-	cur_day += mDays;
-	cur_week += cur_day / 7;
-	cur_day %= 7;
+	cur_day = cur_day + mDays;
+	cur_week = cur_week + cur_day / 7;
+	cur_day = cur_day % 7;
 }
 
 ////////////////////////////////////////////////////////////////////
