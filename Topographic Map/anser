@@ -1,0 +1,91 @@
+#include <algorithm>
+  
+using namespace std;
+  
+#define MAX_MAP_SIZE 2000
+int N, K;
+int H[MAX_MAP_SIZE][MAX_MAP_SIZE];
+  
+int D[60][60];
+  
+struct Point
+{
+    int r;
+    int c;
+};
+  
+int cnt, mP;
+pair<int, int> Block[60][60][6], mPoint[60*60*5+7];
+  
+void init(int N, int K, int mHeight[][MAX_MAP_SIZE])
+{
+    ::N = N; ::K = K;
+  
+    for (int i = 0; i < N; i++)
+    for (int j = 0; j < N; j++)
+        H[i][j] = mHeight[i][j];
+  
+    cnt = 5 < K*K ? 5 : K*K;
+   
+    for (int i = 0; i < N; i += K)
+    for (int j = 0; j < N; j += K)
+    {
+        D[i / K][j / K] = 0;
+        mP = 0;
+        for (int k = 0; k < K; k++) {
+            for (int l = 0; l < K; l++)
+            {
+                mPoint[mP].first = -H[i + k][j + l];
+                mPoint[mP].second = (i + k) * N + j + l;
+                mP++;
+            }
+        }
+        partial_sort(mPoint, mPoint + cnt, mPoint + mP);
+   
+        for (int m = 0; m < cnt; m++)
+            Block[i / K][j / K][m] = mPoint[m];
+    }
+}
+  
+void destroy(){}
+  
+void query(Point mA, Point mB, int mCount, Point mTop[])
+{
+    int i1 = mA.r / K, j1 = mA.c / K;
+    int i2 = mB.r / K, j2 = mB.c / K;
+   
+    mP = 0;
+    for (int i = i1; i < i2; i++)
+    for (int j = j1; j < j2; j++)
+    for (int k = 0; k < cnt; k++)
+    {
+        mPoint[mP].first = Block[i][j][k].first - D[i][j];
+        mPoint[mP].second = Block[i][j][k].second;
+        mP++;
+    }
+  
+    partial_sort(mPoint, mPoint + mCount, mPoint + mP);
+  
+    for (int k = 0; k < mCount; k++)
+    {
+        mTop[k].r = mPoint[k].second / N + 1;
+        mTop[k].c = mPoint[k].second % N + 1;
+    }
+}
+  
+int getHeight(Point mP)
+{
+    int r = mP.r - 1;
+    int c = mP.c - 1;
+    return H[r][c] + D[r / K][c / K];
+}
+  
+void work(Point mA, Point mB, int mH)
+{
+    int i1 = mA.r / K, j1 = mA.c / K;
+    int i2 = mB.r / K, j2 = mB.c / K;
+   
+    for (int i = i1; i < i2; i++)
+    for (int j = j1; j < j2; j++)
+        D[i][j] += mH;
+}
